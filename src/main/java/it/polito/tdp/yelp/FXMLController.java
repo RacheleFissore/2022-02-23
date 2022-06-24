@@ -5,9 +5,12 @@
 package it.polito.tdp.yelp;
 
 import java.net.URL;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import javax.imageio.event.IIOReadWarningListener;
 
 import it.polito.tdp.yelp.model.Business;
 import it.polito.tdp.yelp.model.Model;
@@ -21,6 +24,7 @@ import javafx.scene.control.TextArea;
 public class FXMLController {
 	
 	private Model model;
+	private boolean entrato = false;
 
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -48,19 +52,36 @@ public class FXMLController {
     	this.cmbLocale.getItems().clear();
     	String citta = this.cmbCitta.getValue();
     	if(citta != null) {
-    		//TODO popolare la tendina dei locali per la città selezionata
-    		
+    		List<Business> businesses = model.getLocaliCitta(citta);
+    		cmbLocale.getItems().addAll(businesses);    		
     	}
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-    	
+    	if(cmbCitta.getValue() != null && cmbLocale.getValue() != null) {
+    		entrato = true;
+    		txtResult.clear();
+        	model.creaGrafo(cmbCitta.getValue(), cmbLocale.getValue());
+        	txtResult.appendText("Grafo creato con " + model.getNVertici() + " vertici e " + model.getNArchi() + " archi\n\n");
+        	txtResult.appendText(model.recArchiUscentiMax());
+    	}
     }
 
     @FXML
     void doTrovaMiglioramento(ActionEvent event) {
-    	
+    	txtResult.clear();
+    	if(entrato) {
+    		List<Review> result = model.trovaSequenza();
+    		for(Review review : result) {
+    			txtResult.appendText(review + "\n");
+    		}
+    		
+    		Review r0 = result.get(0);
+    		Review rL = result.get(result.size()-1);
+    		int giorni = (int)ChronoUnit.DAYS.between(r0.getDate(), rL.getDate());
+    		txtResult.appendText("Giorni tra prima e ultima recensione: " + giorni);
+    	}
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -75,5 +96,7 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	
+    	cmbCitta.getItems().addAll(model.getCity());
     }
 }
