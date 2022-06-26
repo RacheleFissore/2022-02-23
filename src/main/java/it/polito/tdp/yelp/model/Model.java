@@ -10,7 +10,6 @@ import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
-import org.mariadb.jdbc.internal.com.send.parameters.BigDecimalParameter;
 
 import it.polito.tdp.yelp.db.YelpDao;
 
@@ -91,36 +90,31 @@ public class Model {
 	public List<Review> trovaSequenza() {
 		best =  new ArrayList<>();
 		List<Review> parziale = new ArrayList<>();
-		cerca(parziale, 0);
+		cerca(parziale);
 		
 		return best;
 	}
 
-	private void cerca(List<Review> parziale, int livello) {
+	private void cerca(List<Review> parziale) {
 		if(parziale.size() > best.size()) {
 			best = new ArrayList<>(parziale);
-			return;
+			//return;
 		}
 		
 		for(Review review : grafo.vertexSet()) {
-			if(!parziale.contains(review)) {
-				if(parziale.size() == 0) {
+			if(parziale.isEmpty()) {
+				parziale.add(review);
+				cerca(parziale);
+				parziale.remove(parziale.size()-1);
+			}
+			else {
+				if(review.getStars() >= parziale.get(parziale.size()-1).getStars() && !parziale.contains(review)) {
 					parziale.add(review);
-					cerca(parziale, livello+1);
+					cerca(parziale);
 					parziale.remove(parziale.size()-1);
 				}
-				else {
-					if(review.getStars() >= parziale.get(parziale.size()-1).getStars()) {
-						parziale.add(review);
-						cerca(parziale, livello+1);
-						parziale.remove(parziale.size()-1);
-					}
-				}
-				
-				
-				
 			}
+			
 		}
-		
 	}
 }
