@@ -108,7 +108,7 @@ public class Model {
 				parziale.remove(parziale.size()-1);
 			}
 			else {
-				if(review.getStars() >= parziale.get(parziale.size()-1).getStars() && !parziale.contains(review)) {
+				if(review.getStars() <= parziale.get(parziale.size()-1).getStars() && !parziale.contains(review)) {
 					parziale.add(review);
 					cerca(parziale);
 					parziale.remove(parziale.size()-1);
